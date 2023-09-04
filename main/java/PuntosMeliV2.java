@@ -80,11 +80,36 @@ public class PuntosMeliV2 {
 
                         }
 
-                        System.out.print("¿Deseas adquirir otro producto?");
+                        System.out.print("¿Deseas adquirir otro producto?: ");
                         respuesta = scanner.nextLine();
                         System.out.println("Te quedaron: " + puntosmeli + " puntos.");
-                    }
 
+                        String consulta = "UPDATE usuarios SET Puntos = ? WHERE Cedula = ?";
+                        PreparedStatement preparedStatement = connection.prepareStatement(consulta);
+                        preparedStatement.setDouble(1, puntosmeli);
+                        preparedStatement.setString(2, cedula);
+
+                        int filasActualizadas = preparedStatement.executeUpdate();
+                        if (filasActualizadas > 0) {
+                            System.out.println("Puntos actualizado exitosamente");
+                        }
+                        String driver2 = "com.mysql.cj.jdbc.Driver";
+                        String url2 = "jdbc:mysql://localhost:3306/micarrito";
+                        String username2 = "root";
+                        String password2 = "";
+
+                        Class.forName(driver2);
+                        Connection connection2 = DriverManager.getConnection(url2, username2, password2);
+
+                        Statement statement2 = connection2.createStatement();
+                        ResultSet resultSet2 = statement2.executeQuery("SELECT * FROM compra");//TABLA
+
+
+                        Insert(cedula, nombre, producto, connection2);
+                        connection2.close();
+                        statement2.close();
+                        resultSet2.close();
+                    }
 
                 } else {
                     System.out.println("No se encontró un registro con el codigo especificado.");
@@ -101,8 +126,32 @@ public class PuntosMeliV2 {
                 e.printStackTrace();
             }
         }
-
-
-
             }
+    public static void Insert(String Cedula, String Nombre, String Productos, Connection connection){
+
+        try {
+            // Sentencia INSERT
+            String sql = "INSERT INTO compra (Cedula, Nombre, Productos) VALUES (?, ?, ?)";
+
+            // Preparar la sentencia
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, Cedula);
+            preparedStatement.setString(2, Nombre);
+            preparedStatement.setString(3, Productos);
+
+            // Ejecutar la sentencia
+            int filasAfectadas = preparedStatement.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("Poducto: " + Productos + " agregado exitosamente.");
+            } else {
+                System.out.println("No se pudo agregar el producto.");
+            }
+
+            preparedStatement.close();
+        }catch (SQLException e){
+            e.printStackTrace();
         }
+
+    }
+}
